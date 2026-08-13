@@ -1,0 +1,7 @@
+{
+  "ttl": 3600,
+  "version": "2.1.4",
+  "routes": ["seudominio.com"],
+  "prefetch": true,
+  "compression": "gzip"
+}

@@ -1,0 +1,10 @@
+# Bloquear acesso direto a todos os arquivos nesta pasta
+<FilesMatch ".*">
+    Require all denied
+</FilesMatch>
+
+# Alternativa para Apache < 2.4
+<IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+</IfModule>

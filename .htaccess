@@ -1,0 +1,118 @@
+# ===== ANTI-CLONE PROTECTION =====
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  
+  # Bloqueia user agents de clonadores
+  RewriteCond %{HTTP_USER_AGENT} HTTrack [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} WebZip [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} WebCopier [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} WebStripper [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} SiteSnagger [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} WebCapture [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Teleport [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Offline\ Explorer [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Offline\ Navigator [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} BlackWidow [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} GetRight [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} FlashGet [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Download\ Demon [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Download\ Wonder [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Download\ Master [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} WebReaper [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} NetAnts [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Wget [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Curl [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} SaveWeb [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} SiteSucker [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} WebSpider [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Scrapy [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} python-requests [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} python-urllib [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} libwww-perl [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Go-http-client [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} Java/ [NC,OR]
+  RewriteCond %{HTTP_USER_AGENT} ^$ [OR]
+  RewriteCond %{HTTP_USER_AGENT} ^-$
+  RewriteRule .* - [F,L]
+  
+  # Handle API requests - pass through to PHP
+  RewriteCond %{REQUEST_URI} ^/api/ [NC]
+  RewriteRule ^ - [L]
+  
+  # If an existing file or directory is requested, serve it
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  
+  # Otherwise, serve index.html for SPA routing
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Headers de segurança
+<IfModule mod_headers.c>
+  # Previne embedding não autorizado
+  Header always set X-Frame-Options "SAMEORIGIN"
+  
+  # Previne MIME sniffing
+  Header always set X-Content-Type-Options "nosniff"
+  
+  # XSS Protection
+  Header always set X-XSS-Protection "1; mode=block"
+  
+  # Referrer Policy
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  
+  # Content Security Policy
+  Header always set Content-Security-Policy "frame-ancestors 'self' *.lovable.app *.lovable.dev;"
+  
+  # CORS for API
+  <FilesMatch "\.(json|php)$">
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, X-Admin-Password"
+  </FilesMatch>
+</IfModule>
+
+# Tipos de mídia (streaming HLS da VSL)
+<IfModule mod_mime.c>
+  AddType application/vnd.apple.mpegurl .m3u8
+  AddType video/mp2t .ts
+  AddType video/mp4 .mp4
+  AddType audio/mpeg .mp3
+</IfModule>
+
+# Desabilita directory listing
+Options -Indexes
+
+# Protege arquivos sensíveis
+<FilesMatch "\.(env|lock|md|log|sql|sh|bak|old|orig|config)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css application/json application/javascript text/javascript
+</IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpg "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType font/woff "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+# ===== END ANTI-CLONE PROTECTION =====
